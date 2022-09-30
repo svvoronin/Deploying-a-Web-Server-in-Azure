@@ -26,19 +26,30 @@ For this project, you will write a Packer template and a Terraform template to d
 1. `az login`
 2. Get credentials' details:
    `az ad sp create-for-rbac --role Contributor --scopes /subscriptions/"Subscription id" --query "{ client_id: appId, client_secret: password, tenant_id: tenant }"`
-3. Set env variables with Service Principal (for Windows)
+3. Set env variables with Service Principal with Azure CLI (for Windows)
 
 ```
-set ARM_SUBSCRIPTION_ID="Subscription id"
-set ARM_CLIENT_ID="Client id"
-set ARM_CLIENT_SECRET="Client Secret"
-set ARM_TENANT_ID="Tenant id"
+set ARM_SUBSCRIPTION_ID=[Subscription id]
+set ARM_CLIENT_ID=[Client id]
+set ARM_CLIENT_SECRET=[Client Secret]
+set ARM_TENANT_ID=[Tenant id]
 ```
+
+4. Other required variables are defined in vars.tf with default values:
+
+- source_image_rg: resource group name where packer image is deployed
+- source_image_name: packer image name
+- username: account username
+- password: account password
+- location: Azure region
+- vm_count: Number of VMs to deploy
+- prefix: resouce prefix
+- tags: resource tag
 
 #### Create a custom policy
 
 1. Creat definition: `az policy definition create --name "policy name" --rules "<path to .json file>"`
-2. Create assignment: `az policy assignment create --name "policy name" --scope /subscriptions/"Subscription id" --policy /subscriptions/"Subscription id"/providers/Microsoft.Authorization/policyDefinitions/"policy name"`
+2. Create assignment: `az policy assignment create --name "policy name" --scope /subscriptions/%ARM_SUBSCRIPTION_ID% --policy /subscriptions/%ARM_SUBSCRIPTION_ID%/providers/Microsoft.Authorization/policyDefinitions/"policy name"`
 3. Verify created assignment: `az policy assignment list`
 
 #### Create web server image with packer
@@ -46,11 +57,11 @@ set ARM_TENANT_ID="Tenant id"
 1. Build image: `packer build server.json`
 2. Verify the image created: `az image list`
 
-#### Cretae infrastructure with Terraform
+#### Create infrastructure with Terraform
 
 1. Init terraform: `terraform init`
-2. Run terraform plan the plan file: `terraform plan -out solution.plan`
-3. Deploy Terraform infrastructure: `terraform apply`
+2. Evaluate terraform configuration to determine the desired state of all the resources it declares: `terraform plan -out solution.plan`
+3. Create Infrastructure with terraform: `terraform apply`
 
 ### Output
 
